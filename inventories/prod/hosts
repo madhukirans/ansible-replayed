@@ -1,0 +1,6 @@
+# file: production
+
+[logging]
+129.213.127.229
+[monitoring]
+129.213.134.128
