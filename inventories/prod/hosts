@@ -1,6 +1,6 @@
 # file: production
 
-[logging]
+[replayed1]
 129.213.127.229
-[monitoring]
+[replayed2]
 129.213.134.128

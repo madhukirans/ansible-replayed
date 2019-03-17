@@ -22,11 +22,13 @@ func GetReplayedConfig() *ReplayedConfig {
 		ClientRequestBufferSizeInKB: 1000,
 		Port:                        8080,
 	}
+	var jsonFile []byte
+	var err error
+	jsonFile, err = ioutil.ReadFile(ConfigFile)
 
-	jsonFile, err := ioutil.ReadFile(ConfigFile)
 	if err != nil {
 		//glog.Fatalf("Config file reading error [ %v ]", err)
-		glog.Error("Config file reading error [ %v ]\nLoading defaults", err)
+		glog.Errorf("Config file reading error [ %v ]\nLoading defaults", err)
 	} else {
 		err = json.Unmarshal(jsonFile, config)
 		if err != nil {

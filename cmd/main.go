@@ -5,6 +5,7 @@ import (
 	"github.com/madhukirans/replayed/pkg/server"
 	"github.com/madhukirans/replayed/pkg/types"
 	"strconv"
+	_ "net/http/pprof"
 )
 
 var config *types.ReplayedConfig

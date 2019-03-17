@@ -40,6 +40,10 @@ go-vendor:
 unit-test: go-install
 	go test -v ./cmd/...
 
+.PHONY: code-cov
+code-cov:
+	go test -coverprofile -v ./...
+
 
 .PHONY: prod-playbook
 prod-playbook:
