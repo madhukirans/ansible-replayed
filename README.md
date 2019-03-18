@@ -4,7 +4,7 @@ The replayd application accepts user data over HTTP and stores it to an in-memor
 
 Please look into Makefile for necessary targets.
  
-####Configuration:
+#### Configuration:
 ```json
 {
   "BufferSizeInMB": 100
@@ -16,7 +16,7 @@ Please look into Makefile for necessary targets.
 * BufferSizeInMB: Maxinum buffer which server storesClient
 * RequestBufferSizeInKB: Maxumim size whcih client can send the payload
 
-####Sending request:
+#### Sending request:
 * For POST request
 User can send multiple POST request to append data to buffer.
 ```apple js
