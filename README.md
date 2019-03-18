@@ -16,6 +16,17 @@ Please look into Makefile for necessary targets.
 * BufferSizeInMB: Maxinum buffer which server storesClient
 * RequestBufferSizeInKB: Maxumim size whcih client can send the payload
 
+####Sending request:
+* For POST request
+User can send multiple POST request to append data to buffer.
+```apple js
+curl -X POST localhost:8080 -d "some data"
+```
+* For GET data from server
+```apple js
+curl  localhost:8080
+```
+
 
 ### Ansible:
   This application is tested/deployed using Ansible using tow different environments with two nodes each.
