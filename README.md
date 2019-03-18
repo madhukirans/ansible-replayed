@@ -4,6 +4,19 @@ The replayd application accepts user data over HTTP and stores it to an in-memor
 
 Please look into Makefile for necessary targets.
  
+####Configuration:
+```json
+{
+  "BufferSizeInMB": 100
+  "ClientRequestBufferSizeInKB": 1
+  "Port": 8080
+}
+
+```
+* BufferSizeInMB: Maxinum buffer which server storesClient
+* RequestBufferSizeInKB: Maxumim size whcih client can send the payload
+
+
 ### Ansible:
   This application is tested/deployed using Ansible using tow different environments with two nodes each.
   Node operating system is redhat linux 7

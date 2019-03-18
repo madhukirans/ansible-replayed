@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"github.com/madhukirans/replayed/pkg/types"
 )
 
 func TestHandler(t *testing.T) {
@@ -19,7 +20,8 @@ func TestHandler(t *testing.T) {
 		{name: "test3", value: "x"},
 	}
 
-	router := StartServer(nil)
+	config := types.GetReplayedConfig()
+	router := StartServer(config)
 	var body string
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
@@ -35,7 +37,8 @@ func TestHandler(t *testing.T) {
 }
 
 func BenchmarkHttp(b *testing.B) {
-	router := StartServer(nil)
+	config := types.GetReplayedConfig()
+	router := StartServer(config)
 	for i := 0; i < b.N; i++ {
 		PerformPostRequest(router, "POST", "/", strings.NewReader("some data string"))
 		PerformGetRequest(router, "GET", "/")

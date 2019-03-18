@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"github.com/madhukirans/replayed/pkg/types"
 )
 
 func TestHandler(t *testing.T) {
-
-	router := server.StartServer(nil)
+	config := types.GetReplayedConfig()
+	router := server.StartServer(config)
 	w := PerformGetRequest(router, "GET", "/")
 	assert.Equal(t, http.StatusOK, w.Code)
 }
