@@ -19,7 +19,7 @@ go-build:
 
 .PHONY: go-run
 go-run: go-install
-	$(GO) run ./cmd/main.go
+	$(GO) run -race ./cmd/main.go
 
 .PHONY: go-fmt
 go-fmt:

@@ -1,24 +1,27 @@
 package main
 
 import (
-	"github.com/madhukirans/replayed/pkg/server"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"github.com/madhukirans/replayed/pkg/types"
+	"github.com/madhukirans/replayed/pkg/server"
 )
 
 func TestHandler(t *testing.T) {
 	config := types.GetReplayedConfig()
-	router := server.StartServer(config)
-	w := PerformGetRequest(router, "GET", "/")
+	server.InitServer(config)
+	w := PerformGetRequest(t,"GET", "/")
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func PerformGetRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
+func PerformGetRequest(t *testing.T, method, path string) *httptest.ResponseRecorder {
+	req1, _ := http.NewRequest(method, path, nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	rr1 := httptest.NewRecorder()
+	handler1 := http.HandlerFunc(server.Handler)
+	handler1.ServeHTTP(rr1, req1)
+
 	return w
 }

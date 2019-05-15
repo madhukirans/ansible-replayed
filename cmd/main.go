@@ -6,6 +6,7 @@ import (
 	"github.com/madhukirans/replayed/pkg/types"
 	"strconv"
 	_ "net/http/pprof"
+	"net/http"
 )
 
 var config *types.ReplayedConfig
@@ -17,8 +18,8 @@ func init() {
 }
 
 func main() {
-	router := server.StartServer(config)
-
+	server.InitServer(config)
+	http.HandleFunc("/", server.Handler)
 	glog.Info("Starting server")
-	router.Run(":" + strconv.Itoa(config.Port))
+	http.ListenAndServe(":" + strconv.Itoa(config.Port), nil)
 }

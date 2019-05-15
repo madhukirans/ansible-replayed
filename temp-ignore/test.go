@@ -5,20 +5,36 @@ import (
 	"strings"
 	"fmt"
 	"time"
+	"sync"
 )
 
+var mutex sync.RWMutex
+
+
 func main(){
-	body := strings.NewReader("Hi how are you")
-	for i :=0; i< 100; i++ {
+	wg := sync.WaitGroup{}
+
+	for i :=0; i< 2000; i++ {
 		go func(){
-			res, err := http.Post("http://localhost:8080", "application/json", body)
+			mutex.Lock()
+			wg.Add(1)
+			mutex.Unlock()
+			body := strings.NewReader("Hi how are you")
+			var netClient = &http.Client{
+				Timeout: time.Second * 10,
+			}
+			res, err := netClient.Post("http://localhost:8080", "application/json", body)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("Error", err)
 			} else {
 				fmt.Println(res)
 			}
+			res, err = netClient.Get("http://localhost:8080")
+			wg.Done()
+
 		}()
 	}
-
-	time.Sleep(10* time.Second)
+	mutex.Lock()
+	wg.Wait()
+	mutex.Unlock()
 }

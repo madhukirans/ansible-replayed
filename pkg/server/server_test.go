@@ -2,13 +2,45 @@ package server
 
 import (
 	"github.com/stretchr/testify/assert"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"github.com/madhukirans/replayed/pkg/types"
 )
+
+func TestHealthCheckHandler(t *testing.T) {
+	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
+	// pass 'nil' as the third parameter.
+	config = types.GetReplayedConfig()
+	//StartServer(config)
+
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(Handler)
+
+	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+	// directly and pass in our Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	// Check the response body is what we expect.
+	expected := `{"alive": true}`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
 
 func TestHandler(t *testing.T) {
 	tt := []struct {
@@ -20,41 +52,77 @@ func TestHandler(t *testing.T) {
 		{name: "test3", value: "x"},
 	}
 
-	config := types.GetReplayedConfig()
-	router := StartServer(config)
+	config = types.GetReplayedConfig()
+	InitServer(config)
 	var body string
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			w := PerformPostRequest(router, "POST", "/", strings.NewReader(tc.value))
-			assert.Equal(t, http.StatusOK, w.Code)
+			req, err := http.NewRequest("POST", "/", strings.NewReader(tc.value))
+			if err != nil {
+				t.Fatal(err)
+			}
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(Handler)
+			handler.ServeHTTP(rr, req)
+			assert.Equal(t, http.StatusAccepted, rr.Code)
 
-			w = PerformGetRequest(router, "GET", "/")
-			assert.Equal(t, http.StatusOK, w.Code)
+			req1, err1 := http.NewRequest("GET", "/", nil)
+			if err1 != nil {
+				t.Fatal(err1)
+			}
+			rr1 := httptest.NewRecorder()
+			handler1 := http.HandlerFunc(Handler)
+			handler1.ServeHTTP(rr1, req1)
+			assert.Equal(t, http.StatusOK, rr1.Code)
+
 			body = body + tc.value
-			assert.Equal(t, w.Body.String(), body)
+			//assert.Equal(t, w.Body.String(), body)
 		})
 	}
 }
 
 func BenchmarkHttp(b *testing.B) {
-	config := types.GetReplayedConfig()
-	router := StartServer(config)
+	config = types.GetReplayedConfig()
+	InitServer(config)
 	for i := 0; i < b.N; i++ {
-		PerformPostRequest(router, "POST", "/", strings.NewReader("some data string"))
-		PerformGetRequest(router, "GET", "/")
+		req, err := http.NewRequest("POST", "/", strings.NewReader("xxx"))
+		if err != nil {
+			b.Fatal(err)
+		}
+		w := httptest.NewRecorder()
+		Handler(w, req)
+
+		req, err = http.NewRequest("GET", "/", nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		w = httptest.NewRecorder()
+		Handler(w, req)
 	}
+	//
+	//config = types.GetReplayedConfig()
+	//StartServer(config)
+	//rr := httptest.NewRecorder()
+	//handler := http.HandlerFunc(Handler)
+	//rr1 := httptest.NewRecorder()
+	//handler1 := http.HandlerFunc(Handler)
+	//
+	//for i := 0; i < b.N; i++ {
+	//	req, err := http.NewRequest("POST", "/", strings.NewReader(""))
+	//	if err != nil {
+	//		b.Fatal(err)
+	//	}
+	//
+	//	handler.ServeHTTP(rr, req)
+	//	assert.Equal(b, http.StatusAccepted, rr.Code)
+	//
+	//	req1, err1 := http.NewRequest("GET", "/", nil)
+	//	if err1 != nil {
+	//		b.Fatal(err1)
+	//	}
+	//
+	//	handler1.ServeHTTP(rr1, req1)
+	//	assert.Equal(b, http.StatusOK, rr1.Code)
+	//}
 }
 
-func PerformPostRequest(r http.Handler, method, path string, body io.Reader) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, body)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
-func PerformGetRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}

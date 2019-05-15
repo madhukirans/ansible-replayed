@@ -1,0 +1,7 @@
+- hosts: all
+  remote_user: opc
+  tasks:
+  - name: simulate long running op (5 sec), wait for up to 45 sec, poll every 5 sec
+    command: /bin/sleep 5 | echo "hi $HOST"
+    #async: 45
+    #poll: 5
